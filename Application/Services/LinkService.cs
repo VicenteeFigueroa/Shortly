@@ -126,4 +126,19 @@ public sealed class LinkService : ILinkService
         _logger.LogInformation("Retrieved {Count} links from the database.", links.Count);
         return links;
     }
+
+    /// <inheritdoc />
+    public async Task<List<Link>> GetLinksByUserId(long userId)
+    {
+        _logger.LogDebug("Retrieving links for user Id: {UserId}", userId);
+        
+        var links = await _context.Links
+            .AsNoTracking()
+            .Where(l => l.UserId == userId)
+            .OrderByDescending(l => l.Id)
+            .ToListAsync();
+
+        _logger.LogInformation("Retrieved {Count} links for user Id: {UserId}.", links.Count, userId);
+        return links;
+    }
 }
