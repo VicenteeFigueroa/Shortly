@@ -63,7 +63,8 @@ The app will start at `http://localhost:5237`. The database is automatically cre
 
 | Email | Password |
 |---|---|
-| `admin@shortly.com` | `admin123` |
+| `admin@shortly.com` | `Admin123!` |
+| `user@shortly.com` | `User123!` |
 
 ## Usage
 
