@@ -1,0 +1,129 @@
+@startuml "DotNet Class Model for Shortly Platform"
+
+skinparam BackgroundColor #FDFCE3
+
+skinparam class {
+    BackgroundColor #FADEDF
+    BorderColor #A00000
+    ArrowColor #A00000
+}
+skinparam interface {
+    BackgroundColor #D8E2F0
+    BorderColor #A00000
+}
+skinparam ArrowColor #A00000
+
+
+title DotNet Class Model for Shortly Platform
+
+package "Shortly" {
+
+    package "Domain" {
+
+        package "Entities" #A9DFB9 {
+            class User {
+                - Id: long
+                - Email: string
+                - Password: string
+                - Links: ICollection<Link>
+                --
+                - User()
+                + User(email: string, password: string)
+            }
+
+            class Link {
+                - Id: long
+                - Url: string
+                - ShortUrl: string
+                - Clicks: int
+                - UserId: long
+                - User: User
+                --
+                - Link()
+                + Link(url: string, shortUrl: string, userId: long)
+                + IncrementClicks(): void
+            }
+
+            User "1" -right-> "*" Link : Links >
+        }
+    }
+
+    package "Infrastructure" {
+
+        package "Persistence" #A9CCDF {
+            class DbContext {
+            }
+
+            class AppDbContext {
+                - Users: DbSet<User>
+                - Links: DbSet<Link>
+                --
+                + AppDbContext(options: DbContextOptions<AppDbContext>)
+            }
+
+            DbContext <|-right- AppDbContext
+        }
+
+        package "Seed" #F1A9A9 {
+            class DbInitializer {
+                + Seed(context: AppDbContext, log: ILogger<DbInitializer>): Task
+            }
+        }
+
+        AppDbContext .right.> User : <<uses>>
+        AppDbContext .right.> Link : <<uses>>
+        DbInitializer .up.> AppDbContext : <<uses>>
+    }
+
+    package "Application" {
+
+        package "Services" #A9CCDF {
+            class LinkService {
+                - _logger: ILogger<LinkService>
+                - _context: AppDbContext
+                --
+                + LinkService(context: AppDbContext, logger: ILogger<LinkService>)
+                + CreateLink(url: string, userId: long): Task<Link>
+                + IncrementClicks(linkId: long): Task<Link>
+                + GetLink(shortUrl: string): Task<Link>
+                + GetAllLinks(): Task<List<Link>>
+            }
+
+            class UserService {
+                - _logger: ILogger<UserService>
+                - _context: AppDbContext
+                --
+                + UserService(context: AppDbContext, logger: ILogger<UserService>)
+                + Register(user: User): Task<User>
+                + GetAllUsers(): Task<List<User>>
+                + Login(email: string, password: string): Task<User>
+                + GetUserByEmail(email: string): Task<User>
+            }
+        }
+
+
+        package "Interfaces" #A9CCDF {
+            interface ILinkService {
+                + CreateLink(url: string, userId: long): Task<Link>
+                + IncrementClicks(linkId: long): Task<Link>
+                + GetLink(shortUrl: string): Task<Link>
+                + GetAllLinks(): Task<List<Link>>
+            }
+
+            interface IUserService {
+                + Register(user: User): Task<User>
+                + GetAllUsers(): Task<List<User>>
+                + Login(email: string, password: string): Task<User>
+                + GetUserByEmail(email: string): Task<User>
+            }
+        }
+
+        LinkService ..right|> ILinkService : <<implements>>
+        UserService ..right|> IUserService : <<implements>>
+
+        LinkService -up-> AppDbContext
+        UserService -up-> AppDbContext
+    }
+}
+
+@enduml

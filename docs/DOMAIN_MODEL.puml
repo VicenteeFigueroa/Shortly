@@ -1,0 +1,49 @@
+@startuml "Domain Model for Shortly Platform"
+
+skinparam BackgroundColor #FDFCE3
+
+skinparam class {
+    BackgroundColor #FADEDF
+    BorderColor #A00000
+    ArrowColor #A00000
+}
+skinparam ArrowColor #A00000
+
+
+title Domain Model for Shortly Platform
+
+package "Shortly" {
+
+    package "services" #FADEDF {
+        class Contracts << (E, #00AA00) >> {
+            + register(user): User
+            + login(email, password): User
+            + create(url, user): Link
+            + getLink(short): Link
+            + incrementsClicks(Link): Long
+            + getAllLinks(userId): List<Link>
+        }
+    }
+
+    package "model" #A9DFB9 {
+        class User << (E, #00AA00) >> {
+            * id: Long
+            * email: String
+            * password: String
+        }
+
+        class Link << (E, #00AA00) >> {
+            * id: Long
+            * url: String
+            * shortUrl: String
+            *    clicks: Long
+        }
+
+        User "1" -right-> "*" Link : ► admin
+    }
+
+    Contracts ..right.> User : uses
+    Contracts ..right.> Link : uses
+}
+
+@enduml
