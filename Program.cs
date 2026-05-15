@@ -1,5 +1,8 @@
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
+using Shortly.Application.Interfaces;
+using Shortly.Application.Services;
 using Shortly.Infrastructure.Persistence;
 using Shortly.Infrastructure.Seed;
 
@@ -10,6 +13,20 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add web services to the builder.
 builder.Services.AddRazorPages();
+
+// Register application services
+builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<ILinkService, LinkService>();
+
+// Configure Authentication
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        options.LoginPath = "/Login";
+        options.LogoutPath = "/Logout";
+        options.AccessDeniedPath = "/Error";
+        options.ExpireTimeSpan = TimeSpan.FromHours(2);
+    });
 
 // Add database context with SQLite provider
 builder.Services.AddDbContext<AppDbContext>(options =>
@@ -38,10 +55,26 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapStaticAssets();
 app.MapRazorPages().WithStaticAssets();
+
+// Map Minimal API for redirection
+app.MapGet("/{shortUrl}", async (string shortUrl, ILinkService linkService) =>
+{
+    try
+    {
+        var link = await linkService.GetLink(shortUrl);
+        await linkService.IncrementsClicks(link.Id);
+        return Results.Redirect(link.Url);
+    }
+    catch (InvalidOperationException)
+    {
+        return Results.NotFound();
+    }
+});
 
 // 3. Create a scope to access the services for initialization tasks.
 using (var scope = app.Services.CreateScope())

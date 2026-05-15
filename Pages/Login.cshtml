@@ -1,0 +1,60 @@
+@page
+@model Shortly.Pages.LoginModel
+@{
+    ViewData["Title"] = "Log In";
+}
+
+<div class="aero-info-panel mb-3">
+    <div>
+        <svg class="aero-info-icon" viewBox="0 0 48 48" fill="none">
+            <rect width="48" height="48" rx="6" fill="#EAF2FC"/>
+            <circle cx="24" cy="18" r="8" stroke="#4580C4" stroke-width="2.5" fill="none"/>
+            <path d="M12 40c0-6.63 5.37-12 12-12s12 5.37 12 12" stroke="#4580C4" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+        </svg>
+    </div>
+    <div class="aero-info-text">
+        <h2>Log In</h2>
+        <p>Enter your credentials to access your Shortly dashboard.</p>
+    </div>
+</div>
+
+<hr class="aero-separator" />
+
+@if (!ModelState.IsValid)
+{
+    <div class="validation-summary-errors" asp-validation-summary="All"></div>
+}
+
+<form method="post">
+    <div class="aero-group" style="position: relative; max-width: 400px;">
+        <span class="aero-group-title">Credentials</span>
+
+        <div class="aero-form-row">
+            <label asp-for="Input.Email" class="aero-form-label">E-mail:</label>
+            <div class="aero-form-field">
+                <input asp-for="Input.Email" class="aero-input" placeholder="user@example.com" />
+                <span asp-validation-for="Input.Email" class="field-validation-error"></span>
+            </div>
+        </div>
+
+        <div class="aero-form-row">
+            <label asp-for="Input.Password" class="aero-form-label">Password:</label>
+            <div class="aero-form-field">
+                <input asp-for="Input.Password" class="aero-input" type="password" />
+                <span asp-validation-for="Input.Password" class="field-validation-error"></span>
+            </div>
+        </div>
+    </div>
+
+    <hr class="aero-separator" />
+
+    <div style="display: flex; gap: 8px; justify-content: flex-end; align-items: center;">
+        <span style="font-size: 12px; margin-right: auto;">Don't have an account? <a asp-page="/Register">Register</a></span>
+        <button type="submit" class="aero-btn aero-btn-primary">Log In</button>
+        <a asp-page="/Index" class="aero-btn" style="text-decoration: none;">Cancel</a>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

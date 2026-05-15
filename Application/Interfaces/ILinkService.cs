@@ -1,4 +1,4 @@
-﻿using Shortly.Domain.Entities;
+using Shortly.Domain.Entities;
 
 namespace Shortly.Application.Interfaces;
 
@@ -26,4 +26,9 @@ public interface ILinkService
     /// Retrieve all the Links.
     /// </summary>
     Task<List<Link>> GetAllLinks();
+
+    /// <summary>
+    /// Retrieve all the Links for a specific user.
+    /// </summary>
+    Task<List<Link>> GetLinksByUserId(long userId);
 }
